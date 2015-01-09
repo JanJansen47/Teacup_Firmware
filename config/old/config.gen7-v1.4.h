@@ -1,59 +1,11 @@
-/* Notice to developers: this file is intentionally included twice. */
-
-/** \file
-	\brief Sample Configuration
-
-	\note this sample uses AIO0 for both X_STEP and thermistor, and is intended to be an example only!
-*/
-
-/*
-	CONTENTS
-
-	1. Mechanical/Hardware
-	2. Acceleration settings
-	3. Pinouts
-	4. Temperature sensors
-	5. Heaters
-	6. Communication options
-	7. Miscellaneous
-	8. Appendix A - PWMable pins and mappings
-*/
 
 /***************************************************************************\
 *                                                                           *
-* 1. MECHANICAL/HARDWARE                                                    *
+* 6. MECHANICAL/HARDWARE                                                    *
 *                                                                           *
 \***************************************************************************/
 
-/*
-	Set your microcontroller type in Makefile! atmega168/atmega328p/atmega644p/atmega1280
-
-	If you want to port this to a new chip, start off with arduino.h and see how you go.
-*/
-#ifndef __AVR_ATmega644__
-  #ifndef __AVR_ATmega644P__
-    #ifndef __AVR_ATmega1284P__
-      #error GEN7 has an ATmega 644, 644P or 1284P. Set your CPU type in the \
-             Makefile or select your board in the Arduino IDE!
-    #endif
-  #endif
-#endif
-
-/** \def F_CPU
-	CPU clock rate
-*/
-#ifndef	F_CPU
-	#define	F_CPU	20000000UL
-#endif
-
-/** \def MOTHERBOARD
-	This is the motherboard, as opposed to the extruder. See extruder/ directory for GEN3 extruder firmware
-*/
-#define	MOTHERBOARD
-
-
 /** \def KINEMATICS
-
   This defines the type of kinematics your printer uses. That's essential!
 
   Valid values (see dda_kinematics.h):
@@ -67,50 +19,37 @@
                         on the X-Y-plane.
 */
 #define KINEMATICS KINEMATICS_STRAIGHT
+//#define KINEMATICS KINEMATICS_COREXY
 
 
 /** \def STEPS_PER_M
-	steps per meter ( = steps per mm * 1000 )
+  Steps per meter ( = steps per mm * 1000 ), calculate these values
+  appropriate for your machine.
 
-	calculate these values appropriate for your machine
+  Valid range = 20 to 4'0960'000 (0.02 to 40960 steps/mm)
 
-	for threaded rods, this is
-		(steps motor per turn) / (pitch of the thread) * 1000
-
-	for belts, this is
-		(steps per motor turn) / (number of gear teeth) / (belt module) * 1000
-
-	half-stepping doubles the number, quarter stepping requires * 4, etc.
-
-	valid range = 20 to 4'0960'000 (0.02 to 40960 steps/mm)
-
-	all numbers are integers, so no decimal point, please :-)
+  All numbers are integers, so no decimal point, please :-)
 */
-#define	STEPS_PER_M_X					40000
-#define	STEPS_PER_M_Y					40000
-#define	STEPS_PER_M_Z					320000
-
-/// http://blog.arcol.hu/?p=157 may help with this one
-#define	STEPS_PER_M_E					96271
+#define STEPS_PER_M_X         40000
+#define STEPS_PER_M_Y         40000
+#define STEPS_PER_M_Z         320000
+#define STEPS_PER_M_E         96271
 
 
-/*
-	Values depending on the capabilities of your stepper motors and other mechanics.
-		All numbers are integers, no decimals allowed.
-
-		Units are mm/min
+/**
+  Various feedrate settings.
 */
 
-/// used for G0 rapid moves and as a cap for all other feedrates
-#define	MAXIMUM_FEEDRATE_X			2000
-#define	MAXIMUM_FEEDRATE_Y			2000
-#define	MAXIMUM_FEEDRATE_Z			200
-#define	MAXIMUM_FEEDRATE_E			2000
+/// Used for G0 rapid moves and as a cap for all other feedrates.
+#define MAXIMUM_FEEDRATE_X      2000
+#define MAXIMUM_FEEDRATE_Y      2000
+#define MAXIMUM_FEEDRATE_Z      200
+#define MAXIMUM_FEEDRATE_E      2000
 
 /// Used when doing precision endstop search and as default feedrate.
-#define	SEARCH_FEEDRATE_X			50
-#define	SEARCH_FEEDRATE_Y			50
-#define	SEARCH_FEEDRATE_Z			50
+#define SEARCH_FEEDRATE_X     50
+#define SEARCH_FEEDRATE_Y     50
+#define SEARCH_FEEDRATE_Z     50
 // no SEARCH_FEEDRATE_E, as E can't be searched
 
 /** \def ENDSTOP_CLEARANCE_X
@@ -140,82 +79,48 @@
 #define ENDSTOP_CLEARANCE_Z 100
 
 /**
-	Soft axis limits, in mm.
-	Define them to your machine's size relative to what your host considers to be the origin.
+  Soft axis limits, in mm.
+  Define them to your machine's size relative to what your host considers to be the origin.
 */
 
-//#define	X_MIN			0.0
-//#define	X_MAX			200.0
+//#define X_MIN     0.0
+//#define X_MAX     200.0
 
-//#define	Y_MIN			0.0
-//#define	Y_MAX			200.0
+//#define Y_MIN     0.0
+//#define Y_MAX     200.0
 
-//#define	Z_MIN			0.0
-//#define	Z_MAX			140.0
+//#define Z_MIN     0.0
+//#define Z_MAX     140.0
 
-/**	\def E_ABSOLUTE
-	Some G-Code creators produce relative length commands for the extruder, others absolute ones. G-Code using absolute lengths can be recognized when there are G92 E0 commands from time to time. If you have G92 E0 in your G-Code, define this flag.
+/** \def E_ABSOLUTE
+  Some G-Code creators produce relative length commands for the extruder, others absolute ones. G-Code using absolute lengths can be recognized when there are G92 E0 commands from time to time. If you have G92 E0 in your G-Code, define this flag.
 
-	This is the startup default and can be changed with M82/M83 while running.
+  This is the startup default and can be changed with M82/M83 while running.
 */
-// #define E_ABSOLUTE
+//#define E_ABSOLUTE
 
 
 
-/***************************************************************************\
-*                                                                           *
-* 2. ACCELERATION                                                           *
-*                                                                           *
-* Choose optionally one of ACCELERATION_REPRAP, ACCELERATION_RAMPING or     *
-* ACCELERATION_TEMPORAL. With none of them defined, movements are done      *
-* without acceleration. Recommended is ACCELERATION_RAMPING.                *
-*                                                                           *
-* LOOKAHEAD is experimental for now and works in conjunction with           *
-* ACCELERATION_RAMPING, only. That's why it's off by default.               *
-*                                                                           *
-* Also don't forget to adjust ACCELERATION to the capabilities of your      *
-* printer. The default is very moderate to be on the safe side.             *
-*                                                                           *
-\***************************************************************************/
-
-/** \def ACCELERATION_REPRAP
-	acceleration, reprap style.
-		Each movement starts at the speed of the previous command and accelerates or decelerates linearly to reach target speed at the end of the movement.
+/**
+  Choose optionally one of ACCELERATION_REPRAP, ACCELERATION_RAMPING or     
+  ACCELERATION_TEMPORAL. With none of them defined, movements are done      
+  without acceleration. Recommended is ACCELERATION_RAMPING.                
 */
-// #define ACCELERATION_REPRAP
-
-/** \def ACCELERATION_RAMPING
-	acceleration and deceleration ramping.
-		Each movement starts at (almost) no speed, linearly accelerates to target speed and decelerates just in time to smoothly stop at the target. alternative to ACCELERATION_REPRAP
-*/
+//#define ACCELERATION_REPRAP
 #define ACCELERATION_RAMPING
 
 /** \def ACCELERATION
-	how fast to accelerate when using ACCELERATION_RAMPING.
-		given in mm/s^2, decimal allowed, useful range 1. to 10'000. Start with 10. for milling (high precision) or 1000. for printing
+  how fast to accelerate when using ACCELERATION_RAMPING.
+    given in mm/s^2, decimal allowed, useful range 1. to 10'000. Start with 10. for milling (high precision) or 1000. for printing
 */
-#define ACCELERATION 1000.
-
-/** \def ACCELERATION_TEMPORAL
-	temporal step algorithm
-		This algorithm causes the timer to fire when any axis needs to step, instead of synchronising to the axis with the most steps ala bresenham.
-
-		This algorithm is not a type of acceleration, and I haven't worked out how to integrate acceleration with it.
-		However it does control step timing, so acceleration algorithms seemed appropriate
-
-		The Bresenham algorithm is great for drawing lines, but not so good for steppers - In the case where X steps 3 times to Y's two, Y experiences massive jitter as it steps in sync with X every 2 out of 3 X steps. This is a worst-case, but the problem exists for most non-45/90 degree moves. At higher speeds, the jitter /will/ cause position loss and unnecessary vibration.
-		This algorithm instead calculates when a step occurs on any axis, and sets the timer to that value.
-
-		// TODO: figure out how to add acceleration to this algorithm
-*/
-// #define ACCELERATION_TEMPORAL
+#define ACCELERATION 1000. /* float */
 
 /** \def LOOKAHEAD
   Define this to enable look-ahead during *ramping* acceleration to smoothly
   transition between moves instead of performing a dead stop every move.
   Enabling look-ahead requires about 3600 bytes of flash memory.
 */
-// #define LOOKAHEAD
+#define LOOKAHEAD
 
 /** \def MAX_JERK_X
     \def MAX_JERK_Y
@@ -257,65 +162,65 @@
 \***************************************************************************/
 
 /*
-	Machine Pin Definitions
-	- make sure to avoid duplicate usage of a pin
-	- comment out pins not in use, as this drops the corresponding code and makes operations faster
+  Machine Pin Definitions
+  - make sure to avoid duplicate usage of a pin
+  - comment out pins not in use, as this drops the corresponding code and makes operations faster
 */
 
-#include	"arduino.h"
+#include  "arduino.h"
 
 /** \def USE_INTERNAL_PULLUPS
-	internal pullup resistors
-		the ATmega has internal pullup resistors on it's input pins which are counterproductive with the commonly used eletronic endstops, so they should be switched off. For other endstops, like mechanical ones, you may want to uncomment this.
+  internal pullup resistors
+    the ATmega has internal pullup resistors on it's input pins which are counterproductive with the commonly used eletronic endstops, so they should be switched off. For other endstops, like mechanical ones, you may want to uncomment this.
 */
 //#define USE_INTERNAL_PULLUPS
 
 /*
-	user defined pins
-	adjust to suit your electronics,
-	or adjust your electronics to suit this
+  user defined pins
+  adjust to suit your electronics,
+  or adjust your electronics to suit this
 */
 
-#define	X_STEP_PIN						DIO29
-#define	X_DIR_PIN							DIO28
-#define	X_MIN_PIN							DIO0
-//#define	X_MAX_PIN							xxxx
-//#define	X_ENABLE_PIN					xxxx
-//#define	X_INVERT_DIR
-//#define	X_INVERT_MIN
-//#define	X_INVERT_MAX
-//#define	X_INVERT_ENABLE
+#define X_STEP_PIN            DIO29
+#define X_DIR_PIN             DIO28
+#define X_MIN_PIN             DIO0
+//#define X_MAX_PIN             xxxx
+//#define X_ENABLE_PIN          xxxx
+//#define X_INVERT_DIR
+//#define X_INVERT_MIN
+//#define X_INVERT_MAX
+//#define X_INVERT_ENABLE
 
-#define	Y_STEP_PIN						DIO27
-#define	Y_DIR_PIN							DIO26
-#define	Y_MIN_PIN							DIO1
-//#define	Y_MAX_PIN							xxxx
-//#define	Y_ENABLE_PIN					xxxx
-//#define	Y_INVERT_DIR
-//#define	Y_INVERT_MIN
-//#define	Y_INVERT_MAX
-//#define	Y_INVERT_ENABLE
+#define Y_STEP_PIN            DIO27
+#define Y_DIR_PIN             DIO26
+#define Y_MIN_PIN             DIO1
+//#define Y_MAX_PIN             xxxx
+//#define Y_ENABLE_PIN          xxxx
+//#define Y_INVERT_DIR
+//#define Y_INVERT_MIN
+//#define Y_INVERT_MAX
+//#define Y_INVERT_ENABLE
 
-#define	Z_STEP_PIN						DIO23
-#define	Z_DIR_PIN							DIO22
-#define	Z_MIN_PIN							DIO2
-//#define	Z_MAX_PIN							xxxx
-//#define	Z_ENABLE_PIN					xxxx
-//#define	Z_INVERT_DIR
-//#define	Z_INVERT_MIN
-//#define	Z_INVERT_MAX
-//#define	Z_INVERT_ENABLE
+#define Z_STEP_PIN            DIO23
+#define Z_DIR_PIN             DIO22
+#define Z_MIN_PIN             DIO2
+//#define Z_MAX_PIN             xxxx
+//#define Z_ENABLE_PIN          xxxx
+//#define Z_INVERT_DIR
+//#define Z_INVERT_MIN
+//#define Z_INVERT_MAX
+//#define Z_INVERT_ENABLE
 
-#define	E_STEP_PIN						DIO19
-#define	E_DIR_PIN							DIO18
+#define E_STEP_PIN            DIO19
+#define E_DIR_PIN             DIO18
 //#define E_ENABLE_PIN
-//#define	E_INVERT_DIR
-//#define	E_INVERT_ENABLE
+//#define E_INVERT_DIR
+//#define E_INVERT_ENABLE
 
-#define	PS_ON_PIN							DIO15
+#define PS_ON_PIN             DIO15
 //#define PS_MOSFET_PIN         xxxx
-#define STEPPER_ENABLE_PIN		DIO25
-#define	STEPPER_INVERT_ENABLE
+#define STEPPER_ENABLE_PIN    DIO25
+#define STEPPER_INVERT_ENABLE
 
 /** \def DEBUG_LED_PIN
 
@@ -348,11 +253,11 @@
 #define TEMP_HYSTERESIS 10
 
 /**
-	TEMP_RESIDENCY_TIME: actual temperature must be close to target (within
-	set temperature +- TEMP_HYSTERESIS) for this long before target is achieved
-	(and a M116 succeeds). Unit is seconds.
+  TEMP_RESIDENCY_TIME: actual temperature must be close to target (within
+  set temperature +- TEMP_HYSTERESIS) for this long before target is achieved
+  (and a M116 succeeds). Unit is seconds.
 */
-#define	TEMP_RESIDENCY_TIME		60
+#define TEMP_RESIDENCY_TIME   60
 
 /**
   TEMP_EWMA: Smooth noisy temperature sensors. Good hardware shouldn't be
@@ -368,11 +273,11 @@
 #define TEMP_EWMA             1.0
 
 /// which temperature sensors are you using? List every type of sensor you use here once, to enable the appropriate code. Intercom is the gen3-style separate extruder board.
-// #define	TEMP_MAX6675
-#define	TEMP_THERMISTOR
-// #define	TEMP_AD595
-// #define	TEMP_PT100
-// #define	TEMP_INTERCOM
+// #define  TEMP_MAX6675
+#define TEMP_THERMISTOR
+// #define  TEMP_AD595
+// #define  TEMP_PT100
+// #define  TEMP_INTERCOM
 
 /***************************************************************************\
 *                                                                           *
@@ -393,7 +298,7 @@
 \***************************************************************************/
 
 #ifndef DEFINE_TEMP_SENSOR
-	#define DEFINE_TEMP_SENSOR(...)
+  #define DEFINE_TEMP_SENSOR(...)
 #endif
 
 //                 name       type            pin        additional
@@ -409,10 +314,10 @@ DEFINE_TEMP_SENSOR(bed,       TT_THERMISTOR,  AIO0,      THERMISTOR_BED)
 \***************************************************************************/
 
 /** \def HEATER_SANITY_CHECK
-	check if heater responds to changes in target temperature, disable and spit errors if not
-	largely untested, please comment in forum if this works, or doesn't work for you!
+  check if heater responds to changes in target temperature, disable and spit errors if not
+  largely untested, please comment in forum if this works, or doesn't work for you!
 */
-// #define	HEATER_SANITY_CHECK
+// #define  HEATER_SANITY_CHECK
 
 /***************************************************************************\
 *                                                                           *
@@ -445,7 +350,7 @@ DEFINE_TEMP_SENSOR(bed,       TT_THERMISTOR,  AIO0,      THERMISTOR_BED)
 \***************************************************************************/
 
 #ifndef DEFINE_HEATER
-	#define DEFINE_HEATER(...)
+  #define DEFINE_HEATER(...)
 #endif
 
 //            name      port   pwm
@@ -458,7 +363,7 @@ DEFINE_HEATER(bed,      DIO3,  1)
 /// so if you list a bed above, uncomment HEATER_BED, but if you list a chamber you do NOT need to create HEATED_CHAMBER
 /// I have searched high and low for a way to make the preprocessor do this for us, but so far I have not found a way.
 
-#define	HEATER_EXTRUDER HEATER_extruder
+#define HEATER_EXTRUDER HEATER_extruder
 #define HEATER_BED HEATER_bed
 
 
@@ -483,11 +388,11 @@ DEFINE_HEATER(bed,      DIO3,  1)
 // #define USB_SERIAL
 
 /** \def XONXOFF
-	Xon/Xoff flow control.
-		Redundant when using RepRap Host for sending GCode, but mandatory when sending GCode files with a plain terminal emulator, like GtkTerm (Linux), CoolTerm (Mac) or HyperTerminal (Windows).
-		Can also be set in Makefile
+  Xon/Xoff flow control.
+    Redundant when using RepRap Host for sending GCode, but mandatory when sending GCode files with a plain terminal emulator, like GtkTerm (Linux), CoolTerm (Mac) or HyperTerminal (Windows).
+    Can also be set in Makefile
 */
-// #define	XONXOFF
+// #define  XONXOFF
 
 
 
@@ -507,89 +412,89 @@ DEFINE_HEATER(bed,      DIO3,  1)
 #define EECONFIG
 
 /** \def DEBUG
-	DEBUG
-		enables /heaps/ of extra output, and some extra M-codes.
-		WARNING: this WILL break most host-side talkers that expect particular responses from firmware such as reprap host and replicatorG
-		use with serial terminal or other suitable talker only.
+  DEBUG
+    enables /heaps/ of extra output, and some extra M-codes.
+    WARNING: this WILL break most host-side talkers that expect particular responses from firmware such as reprap host and replicatorG
+    use with serial terminal or other suitable talker only.
 */
-// #define	DEBUG
+// #define  DEBUG
 
 /** \def BANG_BANG
 BANG_BANG
 drops PID loop from heater control, reduces code size significantly (1300 bytes!)
 may allow DEBUG on '168
 */
-// #define	BANG_BANG
+// #define  BANG_BANG
 /** \def BANG_BANG_ON
 BANG_BANG_ON
 PWM value for 'on'
 */
-// #define	BANG_BANG_ON	200
+// #define  BANG_BANG_ON  200
 /** \def BANG_BANG_OFF
 BANG_BANG_OFF
 PWM value for 'off'
 */
-// #define	BANG_BANG_OFF	45
+// #define  BANG_BANG_OFF 45
 
 /**
-	move buffer size, in number of moves
-		note that each move takes a fair chunk of ram (69 bytes as of this writing) so don't make the buffer too big - a bigger serial readbuffer may help more than increasing this unless your gcodes are more than 70 characters long on average.
-		however, a larger movebuffer will probably help with lots of short consecutive moves, as each move takes a bunch of math (hence time) to set up so a longer buffer allows more of the math to be done during preceding longer moves
+  move buffer size, in number of moves
+    note that each move takes a fair chunk of ram (69 bytes as of this writing) so don't make the buffer too big - a bigger serial readbuffer may help more than increasing this unless your gcodes are more than 70 characters long on average.
+    however, a larger movebuffer will probably help with lots of short consecutive moves, as each move takes a bunch of math (hence time) to set up so a longer buffer allows more of the math to be done during preceding longer moves
 */
-#define	MOVEBUFFER_SIZE	8
+#define MOVEBUFFER_SIZE 8
 
 /** \def DC_EXTRUDER
-	DC extruder
-		If you have a DC motor extruder, configure it as a "heater" above and define this value as the index or name. You probably also want to comment out E_STEP_PIN and E_DIR_PIN in the Pinouts section above.
+  DC extruder
+    If you have a DC motor extruder, configure it as a "heater" above and define this value as the index or name. You probably also want to comment out E_STEP_PIN and E_DIR_PIN in the Pinouts section above.
 */
-// #define	DC_EXTRUDER HEATER_motor
-// #define	DC_EXTRUDER_PWM	180
+// #define  DC_EXTRUDER HEATER_motor
+// #define  DC_EXTRUDER_PWM 180
 
 /** \def USE_WATCHDOG
-	Teacup implements a watchdog, which has to be reset every 250ms or it will reboot the controller. As rebooting (and letting the GCode sending application trying to continue the build with a then different Home point) is probably even worse than just hanging, and there is no better restore code in place, this is disabled for now.
+  Teacup implements a watchdog, which has to be reset every 250ms or it will reboot the controller. As rebooting (and letting the GCode sending application trying to continue the build with a then different Home point) is probably even worse than just hanging, and there is no better restore code in place, this is disabled for now.
 */
 // #define USE_WATCHDOG
 
 /**
-	analog subsystem stuff
-	REFERENCE - which analog reference to use. see analog.h for choices
+  analog subsystem stuff
+  REFERENCE - which analog reference to use. see analog.h for choices
 */
-#define	REFERENCE			REFERENCE_AVCC
+#define REFERENCE     REFERENCE_AVCC
 
 /** \def STEP_INTERRUPT_INTERRUPTIBLE
-	this option makes the step interrupt interruptible (nested).
-	this should help immensely with dropped serial characters, but may also make debugging infuriating due to the complexities arising from nested interrupts
-	\note disable this option if you're using a '168 or for some reason your ram usage is above 90%. This option hugely increases likelihood of stack smashing.
+  this option makes the step interrupt interruptible (nested).
+  this should help immensely with dropped serial characters, but may also make debugging infuriating due to the complexities arising from nested interrupts
+  \note disable this option if you're using a '168 or for some reason your ram usage is above 90%. This option hugely increases likelihood of stack smashing.
 */
-#define		STEP_INTERRUPT_INTERRUPTIBLE	1
+#define   STEP_INTERRUPT_INTERRUPTIBLE  1
 
 /**
-	temperature history count. This is how many temperature readings to keep in order to calculate derivative in PID loop
-	higher values make PID derivative term more stable at the expense of reaction time
+  temperature history count. This is how many temperature readings to keep in order to calculate derivative in PID loop
+  higher values make PID derivative term more stable at the expense of reaction time
 */
-#define	TH_COUNT					8
+#define TH_COUNT          8
 
 /** \def FAST_PWM
-	Teacup offers two PWM frequencies, 76(61) Hz and 78000(62500) Hz on a
-	20(16) MHz electronics. The slower one is the default, as it's the safer
-	choice. Drawback is, in a quiet environment you might notice the heaters
-	and your power supply humming.
+  Teacup offers two PWM frequencies, 76(61) Hz and 78000(62500) Hz on a
+  20(16) MHz electronics. The slower one is the default, as it's the safer
+  choice. Drawback is, in a quiet environment you might notice the heaters
+  and your power supply humming.
 
-	Uncomment this option if you want to get rid of this humming or want
-	faster PWM for other reasons.
+  Uncomment this option if you want to get rid of this humming or want
+  faster PWM for other reasons.
 
-	See also: http://reprap.org/wiki/Gen7_Research#MOSFET_heat_and_PWM
+  See also: http://reprap.org/wiki/Gen7_Research#MOSFET_heat_and_PWM
 */
-// #define	FAST_PWM
+// #define  FAST_PWM
 
 /// this is the scaling of internally stored PID values. 1024L is a good value
-#define	PID_SCALE						1024L
+#define PID_SCALE           1024L
 
 /** \def ENDSTOP_STEPS
-	number of steps to run into the endstops intentionally
-		As Endstops trigger false alarm sometimes, Teacup debounces them by counting a number of consecutive positives. Valid range is 1...255. Use 4 or less for reliable endstops, 8 or even more for flaky ones.
+  number of steps to run into the endstops intentionally
+    As Endstops trigger false alarm sometimes, Teacup debounces them by counting a number of consecutive positives. Valid range is 1...255. Use 4 or less for reliable endstops, 8 or even more for flaky ones.
 */
-#define	ENDSTOP_STEPS	4
+#define ENDSTOP_STEPS 4
 
 /** \def CANNED_CYCLE
 
