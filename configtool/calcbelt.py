@@ -233,7 +233,6 @@ class CalcBelt(wx.Dialog):
 		self.calculate()
 		
 	def onTextCtrlInteger(self, evt):
-		self.assertModified(True)
 		tc = evt.GetEventObject()
 		w = tc.GetValue().strip()
 		if w == "":
