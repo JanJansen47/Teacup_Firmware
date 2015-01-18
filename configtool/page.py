@@ -1,10 +1,10 @@
 #!/bin/env python
 import wx
 
-from configtool.data import pinNames, pinNamesWithBlank, reInteger, reFloat
+from configtool.data import reInteger, reFloat
 
 class Page:
-	def __init__(self):
+	def __init__(self, font):
 		self.modified = False
 		self.valid = True
 		self.fieldValid = {}
@@ -12,7 +12,8 @@ class Page:
 		self.checkBoxes = {}
 		self.radioButtons = {}
 		self.choices = {}
-		self.choiceOptions = {}
+		self.font = font
+
 		
 	def enableAll(self, flag=True):
 		for c in self.textControls.keys():
@@ -26,10 +27,12 @@ class Page:
 		
 	def addTextCtrl(self, name, labelWidth, validator):
 		lsz = wx.BoxSizer(wx.HORIZONTAL)
-		st = wx.StaticText(self, wx.ID_ANY, self.labels[name], size=(labelWidth, -1), style=wx.ALIGN_RIGHT)
+		st = wx.StaticText(self, wx.ID_ANY, self.labels[name]+" ", size=(labelWidth, -1), style=wx.ALIGN_RIGHT)
+		st.SetFont(self.font)
 		lsz.Add(st)
 		
 		tc = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.TE_RIGHT, name=name)
+		tc.SetFont(self.font)
 		self.fieldValid[name] = True
 		tc.Bind(wx.EVT_TEXT, validator)
 		self.textControls[name] = tc
@@ -43,6 +46,7 @@ class Page:
 		else:
 			lbl = name
 		cb = wx.CheckBox(self, wx.ID_ANY, lbl)
+		cb.SetFont(self.font)
 		cb.Bind(wx.EVT_CHECKBOX, validator)
 		self.checkBoxes[name] = cb
 		
@@ -50,6 +54,7 @@ class Page:
 	
 	def addRadioButton(self, name, style, validator):
 		rb = wx.RadioButton(self, wx.ID_ANY, self.labels[name], style=style)
+		rb.SetFont(self.font)
 		self.Bind(wx.EVT_RADIOBUTTON, validator, rb)
 		self.radioButtons[name] = rb
 			
@@ -58,31 +63,33 @@ class Page:
 	def addChoice(self, name, choices, selection, labelWidth, validator):
 		lsz = wx.BoxSizer(wx.HORIZONTAL)
 		st = wx.StaticText(self, wx.ID_ANY, self.labels[name], size=(labelWidth, -1), style=wx.ALIGN_RIGHT)
+		st.SetFont(self.font)
 		lsz.Add(st)
 		
 		ch = wx.Choice(self, wx.ID_ANY, choices = choices, name=name)
+		ch.SetFont(self.font)
 		ch.Bind(wx.EVT_CHOICE, validator)
 		ch.SetSelection(selection)
 		lsz.Add(ch)
 		self.choices[name] = ch
-		self.choiceOptions[name] = choices
 
 		return lsz
 	
-	def addPinChoice(self, name, choiceVal, allowBlank , labelWidth):
+	def addPinChoice(self, name, choiceVal, pins, allowBlank , labelWidth):
 		lsz = wx.BoxSizer(wx.HORIZONTAL)
 		st = wx.StaticText(self, wx.ID_ANY, self.labels[name], size=(labelWidth, -1), style=wx.ALIGN_RIGHT)
+		st.SetFont(self.font)
 		lsz.Add(st)
 		
 		if allowBlank:
-			opts = pinNamesWithBlank
+			opts = ["-"] + pins
 		else:
-			opts = pinNames
+			opts = pins
 		
-		ch = wx.Choice(self, wx.ID_ANY, choices = opts, name=name)
+		ch = wx.Choice(self, wx.ID_ANY, choices = opts, name=name, style=wx.CB_SORT)
+		ch.SetFont(self.font)
 		ch.Bind(wx.EVT_CHOICE, self.onChoice)
 		self.choices[name] = ch
-		self.choiceOptions[name] = opts
 		try:
 			sv = self.pinNames.index(choiceVal)
 		except:
@@ -98,12 +105,10 @@ class Page:
 		else:
 			bv = default
 
-		try:
-			s = self.choiceOptions[name].index(bv)
-		except:
-			try:
-				s = self.choiceOptions[name].index(default)
-			except:
+		s = self.choices[name].FindString(bv)
+		if s < 0:
+			s = self.choices[name].FindString(default)
+			if s < 0:
 				s = 0
 				
 		self.choices[name].SetSelection(s)
@@ -206,7 +211,7 @@ class Page:
 
 		for k in self.choices.keys():				
 			v = self.choices[k].GetSelection()
-			result[k] = self.choiceOptions[k][v]
+			result[k] = self.choices[k].GetString(v)
 
 		return result
 

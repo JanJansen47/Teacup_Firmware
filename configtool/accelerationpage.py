@@ -2,9 +2,9 @@ import wx
 from configtool.page import Page
 
 class AccelerationPage(wx.Panel, Page):
-	def __init__(self, parent, nb, idPg):
+	def __init__(self, parent, nb, idPg, font):
 		wx.Panel.__init__(self, nb, wx.ID_ANY)
-		Page.__init__(self)
+		Page.__init__(self, font)
 		self.parent = parent
 		self.id = idPg
 		
@@ -18,6 +18,7 @@ class AccelerationPage(wx.Panel, Page):
 		sz = wx.GridBagSizer()
 		sz.AddSpacer((20,40), pos=(0,0))
 		b = wx.StaticBox(self, wx.ID_ANY, "Acceleration Type:")
+		b.SetFont(font)
 		sbox = wx.StaticBoxSizer(b, wx.VERTICAL)
 		sbox.AddSpacer((5,5))
 		style = wx.RB_GROUP
@@ -29,6 +30,7 @@ class AccelerationPage(wx.Panel, Page):
 			sbox.AddSpacer((5,5))
 			
 		self.rbNone = wx.RadioButton(self, wx.ID_ANY, "None", style=style)
+		self.rbNone.SetFont(font)
 		self.rbNone.SetValue(True)
 		self.Bind(wx.EVT_RADIOBUTTON, self.onAccTypeSelect, self.rbNone)
 		sbox.Add(self.rbNone, 1, wx.LEFT + wx.RIGHT, 16)
@@ -36,6 +38,7 @@ class AccelerationPage(wx.Panel, Page):
 		sz.Add(sbox, pos=(1,1))
 
 		b = wx.StaticBox(self, wx.ID_ANY, "Ramping Parameters:")
+		b.SetFont(font)
 		sbox = wx.StaticBoxSizer(b, wx.VERTICAL)
 		sbox.AddSpacer((5,5))
 
@@ -56,6 +59,7 @@ class AccelerationPage(wx.Panel, Page):
 		sz.Add(sbox, pos=(1, 3))
 		
 		b = wx.StaticBox(self, wx.ID_ANY, "Maximum Jerk")
+		b.SetFont(font)
 		sbox = wx.StaticBoxSizer(b, wx.VERTICAL)
 		sbox.AddSpacer((5,5))
 		for k in self.jerkKeys:

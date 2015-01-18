@@ -18,7 +18,7 @@
                         long and crossing toothed belts and a print head moving
                         on the X-Y-plane.
 */
-#define KINEMATICS KINEMATICS_STRAIGHT
+#define KINEMATICS                     KINEMATICS_STRAIGHT
 
 
 /** \def STEPS_PER_M_X STEPS_PER_M_Y STEPS_PER_M_Z STEPS_PER_M_E
@@ -29,25 +29,25 @@
 
   Valid range: 20 to 4'0960'000 (0.02 to 40960 steps/mm)
 */
-#define STEPS_PER_M_X         1280000
-#define STEPS_PER_M_Y         1280000
-#define STEPS_PER_M_Z         1280000
-#define STEPS_PER_M_E         96271
+#define STEPS_PER_M_X                  1280000
+#define STEPS_PER_M_Y                  1280000
+#define STEPS_PER_M_Z                  1280000
+#define STEPS_PER_M_E                  96271
 
 /** \def MAXIMUM_FEEDRATE_X MAXIMUM_FEEDRATE_Y MAXIMUM_FEEDRATE_Z MAXIMUM_FEEDRATE_E
  Used for G0 rapid moves and as a cap for all other feedrates.
 */
-#define MAXIMUM_FEEDRATE_X    600
-#define MAXIMUM_FEEDRATE_Y    600
-#define MAXIMUM_FEEDRATE_Z    600
-#define MAXIMUM_FEEDRATE_E    2000
+#define MAXIMUM_FEEDRATE_X             600
+#define MAXIMUM_FEEDRATE_Y             600
+#define MAXIMUM_FEEDRATE_Z             600
+#define MAXIMUM_FEEDRATE_E             2000
 
 /** \def SEARCH_FEEDRATE_X SEARCH_FEEDRATE_Y SEARCH_FEEDRATE_Z
  Used when doing precision endstop search and as default feedrate.
 */
-#define SEARCH_FEEDRATE_X     50
-#define SEARCH_FEEDRATE_Y     50
-#define SEARCH_FEEDRATE_Z     50
+#define SEARCH_FEEDRATE_X              50
+#define SEARCH_FEEDRATE_Y              50
+#define SEARCH_FEEDRATE_Z              50
 // no SEARCH_FEEDRATE_E, as E can't be searched
 
 /** \def ENDSTOP_CLEARANCE_X ENDSTOP_CLEARANCE_Y ENDSTOP_CLEARANCE_Z
@@ -70,9 +70,9 @@
   Sane values: 0 to 20000   (0 to 20 mm)
   Valid range: 0 to 1000000
 */
-#define ENDSTOP_CLEARANCE_X 1000
-#define ENDSTOP_CLEARANCE_Y 1000
-#define ENDSTOP_CLEARANCE_Z 100
+#define ENDSTOP_CLEARANCE_X            1000
+#define ENDSTOP_CLEARANCE_Y            1000
+#define ENDSTOP_CLEARANCE_Z            100
 
 /** \def X_MIN X_MAX Y_MIN Y_MAX Z_MIN Z_MAX
   Soft axis limits, in mm.
@@ -112,7 +112,7 @@
   Units: mm/s^2
   Useful range: 1. to 10'000
 */
-#define ACCELERATION 50. /* float */
+#define ACCELERATION                   50.
 
 /** \def LOOKAHEAD
   Define this to enable look-ahead during *ramping* acceleration to smoothly
@@ -143,10 +143,10 @@
   Sane values: 0 to 400
   Valid range: 0 to 65535
 */
-#define MAX_JERK_X 20
-#define MAX_JERK_Y 20
-#define MAX_JERK_Z 0
-#define MAX_JERK_E 20
+#define MAX_JERK_X                     20
+#define MAX_JERK_Y                     20
+#define MAX_JERK_Z                     0
+#define MAX_JERK_E                     20
 
 
 
@@ -170,7 +170,7 @@
 
   Unit: degree Celsius
 */
-#define TEMP_HYSTERESIS 10
+#define TEMP_HYSTERESIS                10
 
 /** \def TEMP_RESIDENCY_TIME
   Actual temperature must be close to target (within set temperature
@@ -179,7 +179,7 @@
 
   Unit: seconds
 */
-#define TEMP_RESIDENCY_TIME   60
+#define TEMP_RESIDENCY_TIME            60
 
 /** \def TEMP_EWMA
   Smooth noisy temperature sensors. Good hardware shouldn't be noisy. Set to
@@ -192,7 +192,7 @@
 
   Valid range: 0.001 to 1.0
 */
-#define TEMP_EWMA             1.0 /* float */
+#define TEMP_EWMA                      1.0
 
 /** \def HEATER_SANITY_CHECK
   Check if heater responds to changes in target temperature, disable and spit
@@ -200,15 +200,6 @@
   doesn't work for you!
 */
 //#define HEATER_SANITY_CHECK
-
-/** \def XONXOFF
-  Xon/Xoff flow control.
-
-  Redundant when using RepRap Host for sending G-code, but mandatory when
-  sending GCode files with a plain terminal emulator, like GtkTerm (Linux),
-  CoolTerm (Mac) or HyperTerminal (Windows).
-*/
-//#define XONXOFF
 
 /** \def EECONFIG
   Enable EEPROM configuration storage.
@@ -253,7 +244,7 @@
   math (hence time) to set up so a longer buffer allows more of the math to
   be done during preceding longer moves.
 */
-#define MOVEBUFFER_SIZE 8
+#define MOVEBUFFER_SIZE                8
 
 /** \def DC_EXTRUDER DC_EXTRUDER_PWM
   If you have a DC motor extruder, configure it as a "heater" above and define
@@ -276,7 +267,7 @@
   analog subsystem stuff
   REFERENCE - which analog reference to use. see analog.h for choices
 */
-#define REFERENCE             REFERENCE_AVCC
+#define REFERENCE                      REFERENCE_AVCC
 
 /** \def STEP_INTERRUPT_INTERRUPTIBLE
   This option makes the step interrupt interruptible (nested). This should
@@ -287,14 +278,14 @@
   ram usage is above 90%. This option hugely increases likelihood of stack
   smashing.
 */
-#define STEP_INTERRUPT_INTERRUPTIBLE  1
+#define STEP_INTERRUPT_INTERRUPTIBLE   1
 
 /** \def TH_COUNT
   Temperature history count. This is how many temperature readings to keep in
   order to calculate derivative in PID loop higher values make PID derivative
   term more stable at the expense of reaction time.
 */
-#define TH_COUNT              8
+#define TH_COUNT                       8
 
 /** \def FAST_PWM
   Teacup offers two PWM frequencies, 76(61) Hz and 78000(62500) Hz on a
@@ -312,7 +303,7 @@
 /** \def PID_SCALE
   This is the scaling of internally stored PID values. 1024L is a good value.
 */
-#define PID_SCALE             1024L
+#define PID_SCALE                      1024L
 
 /** \def ENDSTOP_STEPS
   Number of steps to run into the endstops intentionally. As endstops trigger
@@ -321,7 +312,7 @@
 
   Valid range: 1...255. Use 4 or less for reliable endstops, 8 or even more for flaky ones.
 */
-#define ENDSTOP_STEPS         4
+#define ENDSTOP_STEPS                  4
 
 /** \def CANNED_CYCLE
   G-code commands in this string will be executed over and over again, without

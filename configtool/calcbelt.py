@@ -1,26 +1,31 @@
 import wx
-
-from configtool.data import BSIZESMALL, reFloat
+from configtool.data import BSIZESMALL, reFloat, reInteger
 
 class CalcBelt(wx.Dialog):
-	def __init__(self, parent, cbUse):
+	def __init__(self, parent, font, cbUse):
 		wx.Dialog.__init__(self, parent, wx.ID_ANY, "Steps Calculator for Belt Driven Axes", size=(360, 300))
+		self.SetFont(font)
 		self.Bind(wx.EVT_CLOSE, self.onExit)
 		
 		self.use = cbUse
-		labelWidth = 110
+		labelWidth = 130
+
+		hsz = wx.BoxSizer(wx.HORIZONTAL)
+		hsz.AddSpacer((10, 10))
 		
 		sz = wx.BoxSizer(wx.VERTICAL)
 		sz.AddSpacer((10,10))
 		
 		lsz = wx.BoxSizer(wx.HORIZONTAL)
 		st = wx.StaticText(self, wx.ID_ANY, "Step Angle:", size=(labelWidth, -1), style=wx.ALIGN_RIGHT)
+		st.SetFont(font)
 		lsz.Add(st)
 		lsz.AddSpacer((5,5))
 		
 		stepAngles = [ "1.8 (200 per revolution)", "0.9 (400 per revolution)", "7.5 (48 per revolution)" ]
 		self.stepAngleValues = [200, 400, 48 ]
 		tc = wx.Choice(self, wx.ID_ANY, choices = stepAngles)
+		tc.SetFont(font)
 		tc.SetSelection(0)
 		tc.Bind(wx.EVT_CHOICE, self.onChoice)
 		lsz.Add(tc)
@@ -32,6 +37,7 @@ class CalcBelt(wx.Dialog):
 		
 		lsz = wx.BoxSizer(wx.HORIZONTAL)
 		st = wx.StaticText(self, wx.ID_ANY, "Microstepping:", size=(labelWidth, -1), style=wx.ALIGN_RIGHT)
+		st.SetFont(font)
 		lsz.Add(st)
 		lsz.AddSpacer((5,5))
 		
@@ -39,6 +45,7 @@ class CalcBelt(wx.Dialog):
 			"1 - full step", "1/2 - half step", "1/4 - quarter step", "1/8 (gen6)", "1/16 (pololu)", "1/32 (smoothieboard)", "1/64 (crazy smoothieboard)" ]
 		self.microSteppingValues = [1, 2, 4, 8, 16, 32, 64]
 		tc = wx.Choice(self, wx.ID_ANY, choices = microStepping)
+		tc.SetFont(font)
 		tc.Bind(wx.EVT_CHOICE, self.onChoice)
 		tc.SetSelection(4)
 		lsz.Add(tc)
@@ -50,10 +57,12 @@ class CalcBelt(wx.Dialog):
 		
 		lsz = wx.BoxSizer(wx.HORIZONTAL)
 		st = wx.StaticText(self, wx.ID_ANY, "Belt Pitch (in mm):", size=(labelWidth, -1), style=wx.ALIGN_RIGHT)
+		st.SetFont(font)
 		lsz.Add(st)
 		lsz.AddSpacer((5,5))
 		
 		tc = wx.TextCtrl(self, wx.ID_ANY, "2", style=wx.TE_RIGHT)
+		tc.SetFont(font)
 		tc.Bind(wx.EVT_TEXT, self.onTextCtrlFloat)
 		lsz.Add(tc)
 		tc.SetToolTipString("Belt Pitch")
@@ -64,6 +73,7 @@ class CalcBelt(wx.Dialog):
 		beltPresets = [ "-", "2mm Pitch (GT2)", "MXL Pitch (2.03mm)", "T2.5 (2.5mm)", "3mm Pitch (GT2,HTD)", "5mm Pitch (T5,GTD,HTD)", "0.2\" XL belt (5.08mm)" ]
 		self.beltPresetValues = [ -1, 2.0, 2.03, 2.5, 3.0, 5.0, 5.08 ]
 		tc = wx.Choice(self, wx.ID_ANY, choices = beltPresets)
+		tc.SetFont(font)
 		tc.SetSelection(0)
 		tc.Bind(wx.EVT_CHOICE, self.onPresetChoice)
 		lsz.Add(tc)
@@ -75,11 +85,13 @@ class CalcBelt(wx.Dialog):
 		
 		lsz = wx.BoxSizer(wx.HORIZONTAL)
 		st = wx.StaticText(self, wx.ID_ANY, "Pulley Teeth Count:", size=(labelWidth, -1), style=wx.ALIGN_RIGHT)
+		st.SetFont(font)
 		lsz.Add(st)
 		lsz.AddSpacer((5,5))
 		
 		tc = wx.TextCtrl(self, wx.ID_ANY, "8", style=wx.TE_RIGHT)
-		tc.Bind(wx.EVT_TEXT, self.onTextCtrlFloat)
+		tc.SetFont(font)
+		tc.Bind(wx.EVT_TEXT, self.onTextCtrlInteger)
 		lsz.Add(tc)
 		tc.SetToolTipString("Pulley Teeth Count")
 		self.tcPulleyTeeth = tc
@@ -89,20 +101,24 @@ class CalcBelt(wx.Dialog):
 		
 		lsz = wx.BoxSizer(wx.HORIZONTAL)
 		st = wx.StaticText(self, wx.ID_ANY, "Result:", size=(labelWidth, -1), style=wx.ALIGN_RIGHT)
+		st.SetFont(font)
 		lsz.Add(st)
 		lsz.AddSpacer((5,5))
 		
-		tc = wx.StaticText(self, wx.ID_ANY, "", size=(200,-1), style=wx.ALIGN_LEFT)
+		tc = wx.StaticText(self, wx.ID_ANY, "", size=(260,-1), style=wx.ALIGN_LEFT)
+		tc.SetFont(font)
 		lsz.Add(tc)
 		self.tcResult = tc
 
 		sz.Add(lsz)
 		lsz = wx.BoxSizer(wx.HORIZONTAL)
 		st = wx.StaticText(self, wx.ID_ANY, "Resolution:", size=(labelWidth, -1), style=wx.ALIGN_RIGHT)
+		st.SetFont(font)
 		lsz.Add(st)
 		lsz.AddSpacer((5,5))
 		
-		tc = wx.StaticText(self, wx.ID_ANY, "", size=(200,-1), style=wx.ALIGN_LEFT)
+		tc = wx.StaticText(self, wx.ID_ANY, "", size=(260,-1), style=wx.ALIGN_LEFT)
+		tc.SetFont(font)
 		lsz.Add(tc)
 		self.tcResolution = tc
 
@@ -112,33 +128,41 @@ class CalcBelt(wx.Dialog):
 		
 		bsz = wx.BoxSizer(wx.HORIZONTAL)
 		b = wx.Button(self, wx.ID_ANY, "Use for X", size=BSIZESMALL)
+		b.SetFont(font)
 		self.Bind(wx.EVT_BUTTON, self.onUseForX, b)
 		bsz.Add(b)
 		self.bUseForX = b
 		bsz.AddSpacer((5,5))
 	
 		b = wx.Button(self, wx.ID_ANY, "Use for Y", size=BSIZESMALL)
+		b.SetFont(font)
 		self.Bind(wx.EVT_BUTTON, self.onUseForY, b)
 		bsz.Add(b)
 		self.bUseForY = b
 		bsz.AddSpacer((5,5))
 	
 		b = wx.Button(self, wx.ID_ANY, "Use for Z", size=BSIZESMALL)
+		b.SetFont(font)
 		self.Bind(wx.EVT_BUTTON, self.onUseForZ, b)
 		bsz.Add(b)
 		self.bUseForZ = b
 		bsz.AddSpacer((5,5))
 	
 		b = wx.Button(self, wx.ID_ANY, "Use for E", size=BSIZESMALL)
+		b.SetFont(font)
 		self.Bind(wx.EVT_BUTTON, self.onUseForE, b)
 		bsz.Add(b)
 		self.bUseForE = b
 
 		sz.Add(bsz)
+		sz.AddSpacer((10, 10))
+
+		hsz.Add(sz)
+		hsz.AddSpacer((10, 10))
 				
 		self.enableUseButtons(False)
 	
-		self.SetSizer(sz)
+		self.SetSizer(hsz)
 		
 		self.Fit()
 	
@@ -207,6 +231,27 @@ class CalcBelt(wx.Dialog):
 		
 	def onChoice(self, evt):
 		self.calculate()
+		
+	def onTextCtrlInteger(self, evt):
+		self.assertModified(True)
+		tc = evt.GetEventObject()
+		w = tc.GetValue().strip()
+		if w == "":
+			valid = False
+		else:
+			m = reInteger.match(w)
+			if m:
+				valid = True
+			else:
+				valid = False
+				
+		if valid:
+			tc.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+		else:
+			tc.SetBackgroundColour("pink")
+		tc.Refresh()
+		self.calculate()
+		evt.Skip()
 
 	def onTextCtrlFloat(self, evt):
 		tc = evt.GetEventObject()

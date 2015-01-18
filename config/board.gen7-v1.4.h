@@ -19,7 +19,7 @@
   CPU clock rate. Possible candidates in comments, default uncommented.
 */
 #ifndef F_CPU
-  #define F_CPU 20000000UL
+#define F_CPU                          20000000UL
 #endif
 
 /** \def MOTHERBOARD
@@ -36,9 +36,9 @@
 
 #include "../arduino.h"
 
-#define X_STEP_PIN            DIO29
-#define X_DIR_PIN             DIO28
-#define X_MIN_PIN             DIO0
+#define X_STEP_PIN                     DIO29
+#define X_DIR_PIN                      DIO28
+#define X_MIN_PIN                      DIO0
 //#define X_MAX_PIN             xxxx
 //#define X_ENABLE_PIN          xxxx
 //#define X_INVERT_DIR
@@ -46,9 +46,9 @@
 //#define X_INVERT_MAX
 //#define X_INVERT_ENABLE
 
-#define Y_STEP_PIN            DIO27
-#define Y_DIR_PIN             DIO26
-#define Y_MIN_PIN             DIO1
+#define Y_STEP_PIN                     DIO27
+#define Y_DIR_PIN                      DIO26
+#define Y_MIN_PIN                      DIO1
 //#define Y_MAX_PIN             xxxx
 //#define Y_ENABLE_PIN          xxxx
 //#define Y_INVERT_DIR
@@ -56,9 +56,9 @@
 //#define Y_INVERT_MAX
 //#define Y_INVERT_ENABLE
 
-#define Z_STEP_PIN            DIO23
-#define Z_DIR_PIN             DIO22
-#define Z_MIN_PIN             DIO2
+#define Z_STEP_PIN                     DIO23
+#define Z_DIR_PIN                      DIO22
+#define Z_MIN_PIN                      DIO2
 //#define Z_MAX_PIN             xxxx
 //#define Z_ENABLE_PIN          xxxx
 //#define Z_INVERT_DIR
@@ -66,15 +66,15 @@
 //#define Z_INVERT_MAX
 //#define Z_INVERT_ENABLE
 
-#define E_STEP_PIN            DIO19
-#define E_DIR_PIN             DIO18
+#define E_STEP_PIN                     DIO19
+#define E_DIR_PIN                      DIO18
 //#define E_ENABLE_PIN
 //#define E_INVERT_DIR
 //#define E_INVERT_ENABLE
 
-#define PS_ON_PIN             DIO15
+#define PS_ON_PIN                      DIO15
 //#define PS_MOSFET_PIN         xxxx
-#define STEPPER_ENABLE_PIN    DIO25
+#define STEPPER_ENABLE_PIN             DIO25
 #define STEPPER_INVERT_ENABLE
 
 /** \def DEBUG_LED_PIN
@@ -131,8 +131,8 @@
 
 //                 name       type            pin        additional
 //DEFINE_TEMP_SENSORS_START
-DEFINE_TEMP_SENSOR(extruder,  TT_THERMISTOR,  AIO1,      THERMISTOR_EXTRUDER)
-DEFINE_TEMP_SENSOR(bed,       TT_THERMISTOR,  AIO0,      THERMISTOR_BED)
+DEFINE_TEMP_SENSOR(extruder,TT_THERMISTOR,AIO1,THERMISTOR_EXTRUDER)
+DEFINE_TEMP_SENSOR(bed,TT_THERMISTOR,AIO0,THERMISTOR_BED)
 //DEFINE_TEMP_SENSORS_END
 
 
@@ -182,8 +182,8 @@ DEFINE_TEMP_SENSOR(bed,       TT_THERMISTOR,  AIO0,      THERMISTOR_BED)
 
 //            name      port   pwm
 //DEFINE_HEATERS_START
-DEFINE_HEATER(extruder, DIO4,  1)
-DEFINE_HEATER(bed,      DIO3,  1)
+DEFINE_HEATER(extruder,DIO4,1)
+DEFINE_HEATER(bed,DIO3,1)
 
 #define HEATER_EXTRUDER HEATER_extruder
 #define HEATER_BED HEATER_bed
@@ -202,7 +202,16 @@ DEFINE_HEATER(bed,      DIO3,  1)
   115200, other common values are 19200, 38400 or 57600. Ignored when USB_SERIAL
   is defined.
 */
-#define BAUD 115200
+#define BAUD                           115200
+
+/** \def XONXOFF
+  Xon/Xoff flow control.
+
+  Redundant when using RepRap Host for sending G-code, but mandatory when
+  sending GCode files with a plain terminal emulator, like GtkTerm (Linux),
+  CoolTerm (Mac) or HyperTerminal (Windows).
+*/
+//#define XONXOFF
 
 /** \def USB_SERIAL
   Define this for using USB instead of the serial RS232 protocol. Works on

@@ -205,15 +205,6 @@
 */
 //#define HEATER_SANITY_CHECK
 
-/** \def XONXOFF
-  Xon/Xoff flow control.
-
-  Redundant when using RepRap Host for sending G-code, but mandatory when
-  sending GCode files with a plain terminal emulator, like GtkTerm (Linux),
-  CoolTerm (Mac) or HyperTerminal (Windows).
-*/
-//#define XONXOFF
-
 /** \def EECONFIG
   Enable EEPROM configuration storage.
 
