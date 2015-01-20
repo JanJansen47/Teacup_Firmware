@@ -5,8 +5,10 @@ import inspect
 
 cmd_folder = os.path.realpath(os.path.abspath(os.path.split(inspect.getfile( inspect.currentframe() ))[0]))
 
+from configtool.settings import Settings
 from configtool.printerpanel import PrinterPanel
 from configtool.boardpanel import BoardPanel
+from configtool.build import Build, Upload
 from configtool.data import VERSION, reInclude
 
 ID_LOAD_PRINTER = 1000
@@ -18,6 +20,8 @@ ID_SAVE_BOARD_AS = 1012
 ID_LOAD_CONFIG = 1020
 ID_LOAD_DEFAULT = 1021
 ID_SAVE_CONFIG = 1022
+ID_BUILD = 1030
+ID_UPLOAD = 1031
 
 	
 class ConfigFrame(wx.Frame):
@@ -25,10 +29,11 @@ class ConfigFrame(wx.Frame):
 		wx.Frame.__init__(self, None, -1, "Teacup Firmware Configurator - " + VERSION, size=(880, 550))
 		self.Bind(wx.EVT_CLOSE, self.onClose)
 		
-		self.font = wx.Font(8,  wx.FONTFAMILY_SWISS, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD)
-
-		
 		panel = wx.Panel(self, -1)
+		
+		self.settings = Settings(self, cmd_folder)
+		self.settings.font = wx.Font(8,  wx.FONTFAMILY_SWISS, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD)
+		self.settings.folder = cmd_folder
 		
 		self.heaters = []
 		self.savePrtEna = False
@@ -37,13 +42,19 @@ class ConfigFrame(wx.Frame):
 		sz = wx.BoxSizer(wx.HORIZONTAL)
 		
 		self.nb = wx.Notebook(panel, wx.ID_ANY, size=(880, 550), style=wx.BK_DEFAULT)
-		self.nb.SetFont(self.font)
-		
-		self.pgPrinter = PrinterPanel(self, self.nb, self.font, cmd_folder)
-		self.nb.AddPage(self.pgPrinter, "Printer")
+		self.nb.SetFont(self.settings.font)
 
-		self.pgBoard = BoardPanel(self, self.nb, self.font, cmd_folder)
-		self.nb.AddPage(self.pgBoard, "Board")
+		self.printerFileName = None
+		self.printerTabDecor = ""	
+		self.printerBaseText = "Printer"	
+		self.pgPrinter = PrinterPanel(self, self.nb, self.settings)
+		self.nb.AddPage(self.pgPrinter, self.printerBaseText)
+
+		self.boardFileName = None
+		self.boardTabDecor = ""	
+		self.boardBaseText = "Board"	
+		self.pgBoard = BoardPanel(self, self.nb, self.settings)
+		self.nb.AddPage(self.pgBoard, self.boardBaseText)
 		
 		panel.Fit()
 		
@@ -60,10 +71,32 @@ class ConfigFrame(wx.Frame):
 		
 		self.Destroy()
 		
-	def setPrinterTabText(self, txt):
-		self.nb.SetPageText(0, txt)
+	def setPrinterTabFile(self, fn):
+		self.printerFileName = fn
+		self.updatePrinterTab()
 	
-	def setBoardTabText(self, txt):
+	def setPrinterTabDecor(self, prefix):
+		self.printerTabDecor = prefix
+		self.updatePrinterTab()
+
+	def updatePrinterTab(self):
+		txt = self.printerTabDecor + self.printerBaseText
+		if self.printerFileName:
+			txt += " <%s>" % self.printerFileName
+		self.nb.SetPageText(0, txt)
+		
+	def setBoardTabFile(self, fn):
+		self.boardFileName = fn
+		self.updateBoardTab()
+	
+	def setBoardTabDecor(self, prefix):
+		self.boardTabDecor = prefix
+		self.updateBoardTab()
+
+	def updateBoardTab(self):
+		txt = self.boardTabDecor + self.boardBaseText
+		if self.boardFileName:
+			txt += " <%s>" % self.boardFileName
 		self.nb.SetPageText(1, txt)
 		
 	def setHeaters(self, ht):
@@ -75,9 +108,11 @@ class ConfigFrame(wx.Frame):
 
 		file_menu.Append(ID_LOAD_CONFIG, 'Load Config.h', 'Load config.h and its named printer and board files')
 		self.Bind(wx.EVT_MENU, self.onLoadConfig, id=ID_LOAD_CONFIG)
+		file_menu.Enable(ID_LOAD_CONFIG, False)
 
 		file_menu.Append(ID_LOAD_DEFAULT, 'Load Default', 'Load default config.h and its named printer and board files')
 		self.Bind(wx.EVT_MENU, self.onLoadDefault, id=ID_LOAD_DEFAULT)
+		file_menu.Enable(ID_LOAD_DEFAULT, False)
 		
 		file_menu.Append(ID_SAVE_CONFIG, 'Save Config.h', 'Save config.h file')
 		self.Bind(wx.EVT_MENU, self.onSaveConfig, id=ID_SAVE_CONFIG)
@@ -89,11 +124,11 @@ class ConfigFrame(wx.Frame):
 		self.Bind(wx.EVT_MENU, self.pgPrinter.onLoadConfig, id=ID_LOAD_PRINTER)
 		
 		file_menu.Append(ID_SAVE_PRINTER, 'Save', 'Save printer configuration')
-		self.Bind(wx.EVT_MENU, self.pgPrinter.onSaveConfig, id=ID_SAVE_PRINTER)
+		self.Bind(wx.EVT_MENU, self.onSavePrinterConfig, id=ID_SAVE_PRINTER)
 		file_menu.Enable(ID_SAVE_PRINTER, False)
 		
 		file_menu.Append(ID_SAVE_PRINTER_AS, 'Save as', 'Save printer configuration to a new file')
-		self.Bind(wx.EVT_MENU, self.pgPrinter.onSaveConfigAs, id=ID_SAVE_PRINTER_AS)
+		self.Bind(wx.EVT_MENU, self.onSavePrinterConfigAs, id=ID_SAVE_PRINTER_AS)
 		file_menu.Enable(ID_SAVE_PRINTER_AS, False)
 		
 		file_menu.AppendSeparator()
@@ -102,11 +137,11 @@ class ConfigFrame(wx.Frame):
 		self.Bind(wx.EVT_MENU, self.pgBoard.onLoadConfig, id=ID_LOAD_BOARD)
 		
 		file_menu.Append(ID_SAVE_BOARD, 'Save', 'Save board configuration to')
-		self.Bind(wx.EVT_MENU, self.pgBoard.onSaveConfig, id=ID_SAVE_BOARD)
+		self.Bind(wx.EVT_MENU, self.onSaveBoardConfig, id=ID_SAVE_BOARD)
 		file_menu.Enable(ID_SAVE_BOARD, False)
 		
 		file_menu.Append(ID_SAVE_BOARD_AS, 'Save as', 'Save board configuration to a new file')
-		self.Bind(wx.EVT_MENU, self.pgBoard.onSaveConfigAs, id=ID_SAVE_BOARD_AS)
+		self.Bind(wx.EVT_MENU, self.onSaveBoardConfigAs, id=ID_SAVE_BOARD_AS)
 		file_menu.Enable(ID_SAVE_BOARD_AS, False)
 		
 		file_menu.AppendSeparator()
@@ -119,8 +154,60 @@ class ConfigFrame(wx.Frame):
 		menu_bar = wx.MenuBar()
 
 		menu_bar.Append(file_menu, '&File')
+		
+		build_menu = wx.Menu()
 
+		build_menu.Append(ID_BUILD, 'build', 'Build the executable')
+		self.Bind(wx.EVT_MENU, self.onBuild, id=ID_BUILD)
+
+		build_menu.Append(ID_UPLOAD, 'upload', 'Upload the executable')
+		self.Bind(wx.EVT_MENU, self.onUpload, id=ID_UPLOAD)
+		
+		self.buildMenu = build_menu
+
+		menu_bar.Append(build_menu, '&Build')
+		
 		self.SetMenuBar(menu_bar)
+		self.checkEnableLoadConfig()
+		self.checkEnableUpload()
+		
+	def onSaveBoardConfig(self, evt):
+		self.pgBoard.onSaveConfig(evt)
+		self.checkEnableLoadConfig()
+		
+	def onSaveBoardConfigAs(self, evt):
+		self.pgBoard.onSaveConfigAs(evt)
+		self.checkEnableLoadConfig()
+		
+	def onSavePrinterConfig(self, evt):
+		self.pgPrinter.onSaveConfig(evt)
+		self.checkEnableLoadConfig()
+		
+	def onSavePrinterConfigAs(self, evt):
+		self.pgPrinter.onSaveConfigAs(evt)
+		self.checkEnableLoadConfig()
+		
+	def checkEnableLoadConfig(self):
+		fn = os.path.join(cmd_folder, "config.h")
+		if os.path.isfile(fn):
+			self.fileMenu.Enable(ID_LOAD_CONFIG, True)
+			self.buildMenu.Enable(ID_BUILD, True)
+		else:
+			self.fileMenu.Enable(ID_LOAD_CONFIG, False)
+			self.buildMenu.Enable(ID_BUILD, False)
+			
+		fn = os.path.join(cmd_folder, "config.default.h")
+		if os.path.isfile(fn):
+			self.fileMenu.Enable(ID_LOAD_DEFAULT, True)
+		else:
+			self.fileMenu.Enable(ID_LOAD_DEFAULT, False)
+
+	def checkEnableUpload(self):
+		fn = os.path.join(cmd_folder, "teacup.hex")
+		if os.path.isfile(fn):
+			self.buildMenu.Enable(ID_UPLOAD, True)
+		else:
+			self.buildMenu.Enable(ID_UPLOAD, False)
 		
 	def enableSavePrinter(self, flag):
 		self.fileMenu.Enable(ID_SAVE_PRINTER, flag)
@@ -155,6 +242,21 @@ class ConfigFrame(wx.Frame):
 		if not self.pgBoard.confirmLoseChanges("Load config"):
 			return
 		
+		pfile, bfile = self.getConfigFileNames(fn)
+		
+		if not pfile:
+			self.message("Config file did not contain a printer file include statement", "Config Error")
+			return
+		
+		if not bfile:
+			self.message("Config file did not contain a board file include statement", "Config Error")
+			return
+		
+		self.pgPrinter.loadConfigFile(pfile)
+		
+		self.pgBoard.loadConfigFile(bfile)
+		
+	def getConfigFileNames(self, fn):
 		pfile = None
 		bfile = None
 		path = os.path.join(cmd_folder, fn)
@@ -187,17 +289,7 @@ class ConfigFrame(wx.Frame):
 					else:
 						self.message("Unable to parse include statement:\n(%s)" % ln, "Config Error")
 		
-		if not pfile:
-			self.message("Config file did not contain a printer file include statement", "Config Error")
-			return
-		
-		if not bfile:
-			self.message("Config file did not contain a board file include statement", "Config Error")
-			return
-		
-		self.pgPrinter.loadConfigFile(pfile)
-		
-		self.pgBoard.loadConfigFile(bfile)
+		return pfile, bfile
 
 	def onSaveConfig(self, evt):
 		fn = os.path.join(cmd_folder, "config.h")
@@ -240,6 +332,104 @@ class ConfigFrame(wx.Frame):
 		
 		m = "<%s> successfully saved\n<%s> successfully saved\nconfig.h successfully saved" % (rbfn, rpfn)
 		self.message(m, "Save Configuration Success", wx.OK + wx.ICON_INFORMATION)
+		
+		self.checkEnableLoadConfig()
+		
+	def onBuild(self, evt):
+		self.onBuildorUpload(True)
+	
+	def onUpload(self, evt):
+		self.onBuildorUpload(False)
+	
+	def onBuildorUpload(self, buildFlag):
+		if not (self.pgPrinter.hasData() or self.pgBoard.hasData()):
+			dlg = wx.MessageDialog(self, "Data needs to be loaded.  'Press Yes' to load config.h",
+							   'Data Missing',
+							   wx.YES_NO | wx.NO_DEFAULT | wx.ICON_INFORMATION
+							   )
+			rc = dlg.ShowModal()
+			dlg.Destroy()
+			if rc != wx.ID_YES:
+				return
+			
+			self.loadConfigFile("config.h")
+		else:
+			if self.pgPrinter.isModified():
+				dlg = wx.MessageDialog(self, "Printer data needs to be saved.  'Press Yes' to save printer configuration",
+							   'Changes Pending',
+							   wx.YES_NO | wx.NO_DEFAULT | wx.ICON_INFORMATION
+							   )
+				rc = dlg.ShowModal()
+				dlg.Destroy()
+				if rc != wx.ID_YES:
+					return
+				self.onSavePrinterConfig(None)
+				
+			if self.pgBoard.isModified():
+				dlg = wx.MessageDialog(self, "Board data needs to be saved.  'Press Yes' to save board configuration",
+							   'Changes Pending',
+							   wx.YES_NO | wx.NO_DEFAULT | wx.ICON_INFORMATION
+							   )
+				rc = dlg.ShowModal()
+				dlg.Destroy()
+				if rc != wx.ID_YES:
+					return
+				self.onSaveBoardConfig(None)
+				
+		if not self.verifyConfigLoaded():
+			dlg = wx.MessageDialog(self, "Loaded configuration does not match what the config.h file.  'Press Yes' to load config.h",
+							   'Incorrect data loaded',
+							   wx.YES_NO | wx.NO_DEFAULT | wx.ICON_INFORMATION
+							   )
+			rc = dlg.ShowModal()
+			dlg.Destroy()
+			if rc != wx.ID_YES:
+				return
+			
+			self.loadConfigFile("config.h")
+				
+		f_cpu, cpu, baud = self.pgBoard.getCPUInfo()
+		if not cpu:
+			dlg = wx.MessageDialog(self, "Unable to determine CPU type",
+							   'CPU Type Error',
+							   wx.OK | wx.ICON_ERROR
+							   )
+			dlg.ShowModal()
+			dlg.Destroy()
+			return
+		if not f_cpu:
+			dlg = wx.MessageDialog(self, "Unable to determine CPU clock rate",
+							   'CPU Clock Rate Error',
+							   wx.OK | wx.ICON_ERROR
+							   )
+			dlg.ShowModal()
+			dlg.Destroy()
+			return
+		if not baud:
+			dlg = wx.MessageDialog(self, "Unable to determine CPU baud rate",
+							   'CPU Baud Rate Error',
+							   wx.OK | wx.ICON_ERROR
+							   )
+			dlg.ShowModal()
+			dlg.Destroy()
+			return
+			
+		if buildFlag:
+			dlg = Build(self, self.settings, f_cpu, cpu, baud)
+			dlg.ShowModal()
+			dlg.Destroy()
+			self.checkEnableUpload()
+		else:
+			dlg = Upload(self, self.settings, f_cpu, cpu, baud)
+			dlg.ShowModal()
+			dlg.Destroy()
+		
+	def verifyConfigLoaded(self):
+		pfile, bfile = self.getConfigFileNames("config.h")
+		lpfile = self.pgPrinter.getFileName()
+		lbfile = self.pgBoard.getFileName()
+		
+		return ((pfile == lpfile) and (bfile == lbfile))
 		
 	def message(self, text, title, style=wx.OK+wx.ICON_ERROR):
 		dlg = wx.MessageDialog(self, text, title, style)

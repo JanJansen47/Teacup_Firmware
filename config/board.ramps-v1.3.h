@@ -4,20 +4,16 @@
 *                                                                           *
 \***************************************************************************/
 
-//PROCESSORS_START
-#ifndef __AVR_ATmega1280__
-  #ifndef __AVR_ATmega2560__
-    #error Wrong CPU type.
-  #endif
-#endif
-//PROCESSORS_END
+//#define CPU_TYPE atmega1284
+//#define CPU_TYPE atmega1284p
+//#define CPU_TYPE atmega2560
+#define CPU                           atmega2560
 
 /** \def F_CPU
-  CPU clock rate. Possible candidates in comments, default uncommented.
+  CPU clock rate.
 */
-#ifndef F_CPU
-  #define F_CPU 16000000UL
-#endif
+//#define F_CPU_OPT 16000000UL
+#define F_CPU                          16000000UL
 
 /** \def MOTHERBOARD
   This is the motherboard, as opposed to the extruder. See extruder/ directory
@@ -33,39 +29,39 @@
 
 #include "../arduino.h"
 
-#define X_STEP_PIN            DIO54
-#define X_DIR_PIN             DIO55
-#define X_MIN_PIN             DIO3
+#define X_STEP_PIN                     DIO54
+#define X_DIR_PIN                      DIO55
+#define X_MIN_PIN                      DIO3
 //#define X_MAX_PIN             DIO2
-#define X_ENABLE_PIN          DIO38
+#define X_ENABLE_PIN                   DIO38
 //#define X_INVERT_DIR
 //#define X_INVERT_MIN
 //#define X_INVERT_MAX
 #define X_INVERT_ENABLE
 
-#define Y_STEP_PIN            DIO60
-#define Y_DIR_PIN             DIO61
-#define Y_MIN_PIN             DIO14
+#define Y_STEP_PIN                     DIO60
+#define Y_DIR_PIN                      DIO61
+#define Y_MIN_PIN                      DIO14
 //#define Y_MAX_PIN             DIO15
-#define Y_ENABLE_PIN          DIO56
+#define Y_ENABLE_PIN                   DIO56
 //#define Y_INVERT_DIR
 //#define Y_INVERT_MIN
 //#define Y_INVERT_MAX
 #define Y_INVERT_ENABLE
 
-#define Z_STEP_PIN            DIO46
-#define Z_DIR_PIN             DIO48
-#define Z_MIN_PIN             DIO18
+#define Z_STEP_PIN                     DIO46
+#define Z_DIR_PIN                      DIO48
+#define Z_MIN_PIN                      DIO18
 //#define Z_MAX_PIN             DIO19
-#define Z_ENABLE_PIN          AIO8
+#define Z_ENABLE_PIN                   AIO8
 //#define Z_INVERT_DIR
 //#define Z_INVERT_MIN
 //#define Z_INVERT_MAX
 #define Z_INVERT_ENABLE
 
-#define E_STEP_PIN            DIO26
-#define E_DIR_PIN             DIO28
-#define E_ENABLE_PIN          DIO24
+#define E_STEP_PIN                     DIO26
+#define E_DIR_PIN                      DIO28
+#define E_ENABLE_PIN                   DIO24
 //#define E_INVERT_DIR
 #define E_INVERT_ENABLE
 
@@ -128,8 +124,8 @@
 
 //                 name       type            pin        additional
 //DEFINE_TEMP_SENSORS_START
-DEFINE_TEMP_SENSOR(extruder,  TT_THERMISTOR,  AIO13,      THERMISTOR_EXTRUDER)
-DEFINE_TEMP_SENSOR(bed,       TT_THERMISTOR,  AIO14,      THERMISTOR_BED)
+DEFINE_TEMP_SENSOR(extruder,TT_THERMISTOR,AIO13,THERMISTOR_EXTRUDER)
+DEFINE_TEMP_SENSOR(bed,TT_THERMISTOR,AIO14,THERMISTOR_BED)
 //DEFINE_TEMP_SENSORS_END
 
 
@@ -179,8 +175,8 @@ DEFINE_TEMP_SENSOR(bed,       TT_THERMISTOR,  AIO14,      THERMISTOR_BED)
 
 //            name      port    pwm
 //DEFINE_HEATERS_START
-DEFINE_HEATER(extruder, DIO10,  1)
-DEFINE_HEATER(bed,      DIO8,  1)
+DEFINE_HEATER(extruder,DIO10,1)
+DEFINE_HEATER(bed,DIO8,1)
 
 #define HEATER_EXTRUDER HEATER_extruder
 #define HEATER_BED HEATER_bed
@@ -199,7 +195,7 @@ DEFINE_HEATER(bed,      DIO8,  1)
   115200, other common values are 19200, 38400 or 57600. Ignored when USB_SERIAL
   is defined.
 */
-#define BAUD 115200
+#define BAUD                           115200
 
 /** \def XONXOFF
   Xon/Xoff flow control.
@@ -208,7 +204,7 @@ DEFINE_HEATER(bed,      DIO8,  1)
   sending GCode files with a plain terminal emulator, like GtkTerm (Linux),
   CoolTerm (Mac) or HyperTerminal (Windows).
 */
-//#define XONXOFF
+#define XONXOFF
 
 /** \def USB_SERIAL
   Define this for using USB instead of the serial RS232 protocol. Works on

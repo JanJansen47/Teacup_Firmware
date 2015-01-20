@@ -3,24 +3,17 @@
 * 1. CPU                                                                    *
 *                                                                           *
 \***************************************************************************/
-//PROCESSORS_START
-#ifndef __AVR_ATmega644__
-  #ifndef __AVR_ATmega644P__
-    #ifndef __AVR_ATmega1284__
-      #ifndef __AVR_ATmega1284P__
-        #error Wrong CPU type.
-      #endif
-    #endif
-  #endif
-#endif
-//PROCESSORS_END
+//#define CPU_TYPE atmega644
+//#define CPU_TYPE atmega644p
+//#define CPU_TYPE atmega1284
+//#define CPU_TYPE atmega1284p
+#define CPU atmega644
 
 /** \def F_CPU
-  CPU clock rate. Possible candidates in comments, default uncommented.
+  CPU clock rate.
 */
-#ifndef F_CPU
-#define F_CPU                          20000000UL
-#endif
+//#define F_CPU_OPT   20000000UL
+#define F_CPU   20000000UL
 
 /** \def MOTHERBOARD
   This is the motherboard, as opposed to the extruder. See extruder/ directory
