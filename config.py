@@ -1,11 +1,11 @@
-#!/bin/env python
+#!/usr/bin/env python
 import wx
 import os.path
 import inspect
 
 cmd_folder = os.path.realpath(os.path.abspath(os.path.split(inspect.getfile( inspect.currentframe() ))[0]))
 
-from configtool.settings import Settings
+from configtool.settings import Settings, SettingsDlg
 from configtool.printerpanel import PrinterPanel
 from configtool.boardpanel import BoardPanel
 from configtool.build import Build, Upload
@@ -22,6 +22,7 @@ ID_LOAD_DEFAULT = 1021
 ID_SAVE_CONFIG = 1022
 ID_BUILD = 1030
 ID_UPLOAD = 1031
+ID_SETTINGS = 1040
 
 	
 class ConfigFrame(wx.Frame):
@@ -167,6 +168,15 @@ class ConfigFrame(wx.Frame):
 
 		menu_bar.Append(build_menu, '&Build')
 		
+		edit_menu = wx.Menu()
+
+		edit_menu.Append(ID_SETTINGS, 'settings', 'change settings')
+		self.Bind(wx.EVT_MENU, self.onEditSettings, id=ID_SETTINGS)
+
+		self.editMenu = edit_menu
+
+		menu_bar.Append(edit_menu, '&Edit')
+		
 		self.SetMenuBar(menu_bar)
 		self.checkEnableLoadConfig()
 		self.checkEnableUpload()
@@ -246,15 +256,15 @@ class ConfigFrame(wx.Frame):
 		
 		if not pfile:
 			self.message("Config file did not contain a printer file include statement", "Config Error")
-			return
-		
+		else:
+			if not self.pgPrinter.loadConfigFile(pfile):
+				self.message("There was a problem loading the printer config file\n%s" % pfile, "Config Error")
+			
 		if not bfile:
 			self.message("Config file did not contain a board file include statement", "Config Error")
-			return
-		
-		self.pgPrinter.loadConfigFile(pfile)
-		
-		self.pgBoard.loadConfigFile(bfile)
+		else:
+			if not self.pgBoard.loadConfigFile(bfile):
+				self.message("There was a problem loading the board config file\n%s" % bfile, "Config Error")
 		
 	def getConfigFileNames(self, fn):
 		pfile = None
@@ -430,7 +440,17 @@ class ConfigFrame(wx.Frame):
 		lbfile = self.pgBoard.getFileName()
 		
 		return ((pfile == lpfile) and (bfile == lbfile))
-		
+	
+	def onEditSettings(self, evt):
+		dlg = SettingsDlg(self, self.settings)
+		rc = dlg.ShowModal()
+		dlg.Destroy()
+		if rc != wx.ID_OK:
+			return
+
+		m = "<configtool.ini> successfully saved\n"
+		self.message(m, "Save Settings Success", wx.OK + wx.ICON_INFORMATION)
+
 	def message(self, text, title, style=wx.OK+wx.ICON_ERROR):
 		dlg = wx.MessageDialog(self, text, title, style)
 		dlg.ShowModal()

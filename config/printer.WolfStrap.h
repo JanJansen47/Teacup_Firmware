@@ -200,7 +200,7 @@
   With this disabled, only temps will be returned: ok T:xxx.x B:xxx.x
   Enabling adds 78 bytes to the image
 */
-//#define REPORT_TARGET_TEMPS
+#define REPORT_TARGET_TEMPS
 
 /** \def HEATER_SANITY_CHECK
   Check if heater responds to changes in target temperature, disable and spit

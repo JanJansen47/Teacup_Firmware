@@ -7,7 +7,7 @@
 //#define CPU_TYPE atmega1284
 //#define CPU_TYPE atmega1284p
 //#define CPU_TYPE atmega2560
-#define CPU                           atmega2560
+#define CPU                            atmega2560
 
 /** \def F_CPU
   CPU clock rate.
@@ -170,6 +170,7 @@ DEFINE_TEMP_SENSOR(bed,TT_THERMISTOR,AIO14,THERMISTOR_BED)
 
 // Candidates which can be used as thermistor pins.
 //#define HEATER_PIN DIO10
+//#define HEATER_PIN DIO9
 //#define HEATER_PIN DIO8
 //#define HEATER_PIN DIO5
 
@@ -177,9 +178,11 @@ DEFINE_TEMP_SENSOR(bed,TT_THERMISTOR,AIO14,THERMISTOR_BED)
 //DEFINE_HEATERS_START
 DEFINE_HEATER(extruder,DIO10,1)
 DEFINE_HEATER(bed,DIO8,1)
+DEFINE_HEATER(fan,DIO9,1)
 
 #define HEATER_EXTRUDER HEATER_extruder
 #define HEATER_BED HEATER_bed
+#define HEATER_FAN HEATER_fan
 //DEFINE_HEATERS_END
 
 

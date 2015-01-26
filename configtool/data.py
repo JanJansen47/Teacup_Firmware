@@ -1,4 +1,3 @@
-#!/bin/env python
 import re
 
 VERSION = "0.1"

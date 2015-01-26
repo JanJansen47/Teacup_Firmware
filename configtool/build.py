@@ -1,7 +1,6 @@
-import wx
 import wx.lib.newevent
 import thread, shlex, subprocess
-import os
+import os, re
 from os.path import isfile, join
 from sys import platform
 
@@ -108,6 +107,8 @@ class Build(wx.Dialog):
 		
 		tc = wx.TextCtrl(self, wx.ID_ANY, size=(900, 300), style=wx.TE_READONLY + wx.TE_MULTILINE)
 		sz.Add(tc, 1, wx.EXPAND)
+		f = wx.Font(8,  wx.FONTFAMILY_MODERN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD)
+		tc.SetFont(f)
 		self.log = tc
 		
 		sz.AddSpacer((10,10))
@@ -145,6 +146,21 @@ class Build(wx.Dialog):
 			t = ScriptThread(self, self.script)
 			self.active = True
 			t.Start()
+			
+	def report(self):
+		self.script = []
+		self.reportLines = []
+		if platform == "win32":
+			cmdpath = "\"" + join(self.settings.arduinodir, "avr-objdump") + "\""
+		else:
+			cmdpath = "avr-objdump"
+		elfpath = "\"" + join(self.root, "build", "teacup.elf") + "\""
+		cmd = cmdpath + " -h " + elfpath
+		self.script.append(cmd)
+		self.Bind(EVT_SCRIPT_UPDATE, self.reportUpdate)
+		t = ScriptThread(self, self.script)
+		self.active = True
+		t.Start()
 		
 	def generateCompileScript(self):
 		self.script = []
@@ -179,6 +195,7 @@ class Build(wx.Dialog):
 		ofiles = [ "\"" + join(self.root, "build", f) + "\"" for f in os.listdir(join(self.root, "build")) if isfile(join(self.root,"build",f)) and f.endswith(".o") ]
 		opath = " ".join(ofiles)
 		elfpath = "\"" + join(self.root, "build", "teacup.elf") + "\""
+		hexpath = "\"" + join(self.root, "teacup.hex") + "\""
 		opts = self.settings.cflags
 		opts = opts.replace("%ALNAME%", "teacup.elf")
 		opts = opts.replace("%F_CPU%", self.f_cpu)
@@ -190,7 +207,7 @@ class Build(wx.Dialog):
 			cmdpath = "\"" + join(self.settings.arduinodir, "avr-objcopy") + "\""
 		else:
 			cmdpath = "avr-objcopy"
-		cmd = cmdpath + " " + self.settings.objcopyflags + " " +  elfpath + " teacup.hex"
+		cmd = cmdpath + " " + self.settings.objcopyflags + " " +  elfpath + " " + hexpath
 		self.script.append(cmd)
 
 	def compileUpdate(self, evt):
@@ -217,7 +234,47 @@ class Build(wx.Dialog):
 			self.active = False
 		if evt.state == SCRIPT_FINISHED:
 			self.log.AppendText("Link completed normally\n\n")
+			self.report()
+
+	def reportUpdate(self, evt):
+		if evt.state == SCRIPT_RUNNING:
+			if evt.msg is not None:
+				self.reportLines.append(evt.msg)
+		if evt.state == SCRIPT_CANCELLED:
+			self.log.AppendText(evt.msg + "\n")
+			self.log.AppendText("Report terminated abnormally\n\n")
 			self.active = False
+		if evt.state == SCRIPT_FINISHED:
+			self.formatReport()
+			self.log.AppendText("\nBuild completed normally\n\n")
+			self.active = False
+			
+	def formatReportLine(self, m, name, v168, v328, v644, v1280):
+		t = m.groups()
+		v = int(t[0], 16)
+		self.log.AppendText("%12s : %6d bytes     %6.2f%%     %6.2f%%     %6.2f%%     %6.2f%%\n" % (
+				name, v, v/float(v168*1024)*100.0, v/float(v328*1024)*100.0, v/float(v644*1024)*100.0, v/float(v1280*1024)*100.0))
+
+	def formatReport(self):		
+		reText = re.compile("\.text\s+([0-9a-f]+)")
+		reBss = re.compile("\.bss\s+([0-9a-f]+)")
+		reEEProm = re.compile("\.eeprom\s+([0-9a-f]+)")
+		
+		self.log.AppendText("                    ATmega...      '168     '328(P)     '644(P)       '1280\n")
+		for l in self.reportLines:
+			m = reText.search(l)
+			if m:
+				self.formatReportLine(m, "FLASH", 14, 30, 62, 126)
+			else:
+				m = reBss.search(l)
+				if m:
+					self.formatReportLine(m, "RAM", 1, 2, 4, 8)
+				else:
+					m = reEEProm.search(l)
+					if m:
+						self.formatReportLine(m, "EEPROM", 1, 2, 2, 4)
+
+			
 		
 	def onExit(self, evt):
 		if self.active:
@@ -244,6 +301,8 @@ class Upload(wx.Dialog):
 		
 		tc = wx.TextCtrl(self, wx.ID_ANY, size=(900, 300), style=wx.TE_READONLY + wx.TE_MULTILINE)
 		sz.Add(tc, 1, wx.EXPAND)
+		f = wx.Font(8,  wx.FONTFAMILY_MODERN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD)
+		tc.SetFont(f)
 		self.log = tc
 		
 		sz.AddSpacer((10,10))

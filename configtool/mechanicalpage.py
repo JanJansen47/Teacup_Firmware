@@ -1,8 +1,3 @@
-'''
-Created on Jan 9, 2015
-
-@author: Jeff
-'''
 import wx
 from configtool.data import BSIZE
 from configtool.page import Page
@@ -209,6 +204,12 @@ class MechanicalPage(wx.Panel, Page):
 			if rb.GetValue():
 				result['KINEMATICS'] = tag
 				break
+
+		for tag in self.kinematicsKeys:
+			try:
+				del result[tag]
+			except:
+				pass
 			
 		return result
 			

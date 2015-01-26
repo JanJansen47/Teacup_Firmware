@@ -11,7 +11,7 @@ class MiscellaneousPage(wx.Panel, Page):
 		self.font = font
 		
 		self.labels = { 'USE_INTERNAL_PULLUPS': "Use Internal Pullups", 'EECONFIG': "Enable EEPROM Storage", 'DEBUG': "Turn on debugging", 'BANG_BANG': "Enable",
-					"BANG_BANG_ON": 'On PWM level:', 'BANG_BANG_OFF': "Off PWM level:",
+					"BANG_BANG_ON": 'On PWM level:', 'BANG_BANG_OFF': "Off PWM level:", "REPORT_TARGET_TEMPS": "Report Target Temperatures",
 					'MOVEBUFFER_SIZE': "Move buffer size:", 'DC_EXTRUDER': "Heater:", 'DC_EXTRUDER_PWM': 'PWM:',
 					'USE_WATCHDOG': "Use the watchdog timer", 'REFERENCE': 'Analog Reference:', 'STEP_INTERRUPT_INTERRUPTIBLE': 'STEP Interrupt',
 					'TH_COUNT': "Temperature History size:", 'FAST_PWM': "Fast PWM", 'ENDSTOP_STEPS': "Endstop steps:", 'PID_SCALE': "PID Scaling factor:",
@@ -68,6 +68,10 @@ class MiscellaneousPage(wx.Panel, Page):
 		k = "HEATER_SANITY_CHECK"	
 		cb = self.addCheckBox(k, self.onCheckBox)
 		sz.Add(cb, pos=(7,1))
+
+		k = "REPORT_TARGET_TEMPS"	
+		cb = self.addCheckBox(k, self.onCheckBox)
+		sz.Add(cb, pos=(8,1))
 		
 		k = "REFERENCE"
 		ch = self.addChoice(k, self.references, self.references.index(self.defaultRef), labelWidth, self.onChoice)
